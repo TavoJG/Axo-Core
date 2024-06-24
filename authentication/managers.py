@@ -36,8 +36,3 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError(_("Superuser must have is_superuser=True."))
         return self.create_user(email, password, **extra_fields)
-
-    def get_system_user(self):
-        SYSTEM_USER_EMAIL = settings.SYSTEM_USER_EMAIL
-        user = self.get(email=SYSTEM_USER_EMAIL)
-        return user

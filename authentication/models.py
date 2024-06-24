@@ -4,9 +4,10 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from authentication.managers import CustomUserManager
+from common.models import AbstractBaseModel
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, AbstractBaseModel):
     email = models.EmailField(_("email address"), unique=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

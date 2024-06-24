@@ -1,12 +1,10 @@
-import json
-
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpRequest, JsonResponse
+from django.http import JsonResponse
 from django.middleware.csrf import get_token
-from django.views.decorators.http import require_POST
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 
 from authentication.serializers import LoginSerializer, UserSerializer
 
@@ -17,24 +15,26 @@ def get_csrf(request):
     return response
 
 
-@require_POST
-def login_view(request: HttpRequest):
-    data = json.loads(request.body)
-    serializer = LoginSerializer(data=data)
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def login_view(request: Request):
+    serializer = LoginSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = authenticate(request, **serializer.validated_data)
     if not user:
-        return JsonResponse({"detail": "Invalid credentials."}, status=400)
+        return Response({"detail": "Invalid credentials."}, status=400)
     login(request, user)
-    return JsonResponse({"detail": "Successfully logged in."})
+    return Response({"detail": "Successfully logged in."})
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def logout_view(request):
     if not request.user.is_authenticated:
-        return JsonResponse({"detail": "You're not logged in."}, status=400)
+        return Response({"detail": "You're not logged in."}, status=400)
 
     logout(request)
-    return JsonResponse({"detail": "Successfully logged out."})
+    return Response({"detail": "Successfully logged out."})
 
 
 @api_view(["GET"])
