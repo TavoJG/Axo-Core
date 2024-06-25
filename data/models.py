@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 class Variable(AbstractBaseModel):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50, unique=True, db_index=True)
     units = models.CharField(max_length=50)
     modified_by = models.ForeignKey(User, on_delete=models.CASCADE)
 

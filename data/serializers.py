@@ -17,21 +17,27 @@ class VariableSerializer(serializers.ModelSerializer):
 
 
 class RecordSerializer(serializers.ModelSerializer):
-    variable_uuid = serializers.UUIDField(write_only=True)
-    variable = serializers.StringRelatedField(read_only=True)
+    variable = serializers.CharField(source="variable.name")
     value = serializers.FloatField()
     units = serializers.CharField(read_only=True, source="variable.units")
 
     def create(self, validated_data):
-        variable_uuid = validated_data.pop("variable_uuid")
-        variable = Variable.objects.get(pk=variable_uuid)
-        record = Record.objects.create(variable=variable, value=validated_data["value"])
-        return record
+        try:
+            variable_name = validated_data.pop("variable")["name"]
+            variable = Variable.objects.get(name=variable_name)
+            record = Record.objects.create(
+                variable=variable, value=validated_data["value"]
+            )
+            return record
+        except Variable.DoesNotExist:
+            raise serializers.ValidationError(
+                f"Variable with name {variable_name} does not exist"
+            )
 
     def update(self, instance, validated_data):
         raise NotImplementedError("Updating records is not allowed")
 
     class Meta:
         model = Record
-        fields = ["uuid", "variable", "value", "variable_uuid", "units", "created_at"]
+        fields = ["uuid", "variable", "value", "units", "created_at"]
         read_only_fields = ["uuid", "created_at"]

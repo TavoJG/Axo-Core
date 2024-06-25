@@ -1,6 +1,7 @@
 from django.urls import path
 
-from authentication.views import get_csrf, get_current_user, login_view, logout_view
+from authentication.views import (get_csrf, get_current_user, login_view,
+                                  logout_view)
 
 urlpatterns = [
     path("csrf", get_csrf, name="get-csrf"),
